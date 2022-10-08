@@ -8,16 +8,19 @@ class Tree {
 	class Node {
 	public:
 		int data;
+		int height_node;
 		Node* right;
 		Node* left;
-		Node(int data, Node* right = nullptr, Node* left = nullptr) {
+		Node* previous;
+		Node(int data, Node* right = nullptr, Node* left = nullptr,Node* previous = nullptr,int height_node = 1) {
 			this->data = data;
 			this->right = right;
 			this->left = left;
+			this->height_node = height_node;
+			this->previous = previous;
 		}
 	};
 	Node* root = nullptr;
-	int height = 0;
 
 	void direct_bypass(Node* node) {
 		if (node == nullptr) return;
@@ -32,7 +35,7 @@ class Tree {
 		max_length_number(node->right,length_number);
 	}
 	void string_level(Node* node, int level, int height, std::string& str,int length_number) { // for print()
-		int max_length = std::pow(2, this->height - 1);
+		int max_length = std::pow(2, root->height_node - 1);
 		max_length = (2 * max_length - 1) * length_number;
 
 		if (level == height + 1) return;
@@ -89,53 +92,401 @@ class Tree {
 		string_level(node->left, level + 1, height, str, length_number);
 		string_level(node->right, level + 1, height, str, length_number);
 	}
+	std::string space(int number, char delimiter = ' ') {
+		std::string str = "";
+		for (int i = 0; i < number; i++)
+		{
+			str += delimiter;
+		}
+		return str;
+	}
+
+	int get_height(Node* node) {
+		return node ? node->height_node : 0;
+	}
+	int difference(Node* node) {
+		return get_height(node->right) - get_height(node->left);
+	}
+	void fix_height(Node* node) {
+		int height_left = get_height(node->left);
+		int height_right = get_height(node->right);
+		node->height_node = (height_left > height_right ? height_left : height_right) + 1;
+	}
+	void right_rotate(Node* high) {
+		Node* low = high->left;
+		high->left = low->right;
+		low->right = high;
+		low->previous = high->previous;
+		if (low->right != nullptr)
+			low->right->previous = high;
+		high->previous = low;
+		if (low->previous != nullptr) {
+			if (low->previous->data < low->data) {
+				low->previous->right = low;
+			}
+			if (low->previous->data > low->data) {
+				low->previous->left = low;
+			}
+		}
+		
+		fix_height(high);
+		fix_height(low);
+	}
+	void left_rotate(Node* high) {
+		Node* low = high->right;
+		high->right = low->left;
+		low->left = high;
+		low->previous = high->previous;
+		if (low->left != nullptr)
+			low->left->previous = high;
+		high->previous = low;
+		if (low->previous != nullptr) {
+			if (low->previous->data < low->data) {
+				low->previous->right = low;
+			}
+			if (low->previous->data > low->data) {
+				low->previous->left = low;
+			}
+		}
+		fix_height(high);
+		fix_height(low);
+	}
+
+	void balance(Node* node) {
+		while (true) {
+			fix_height(node);
+			if (difference(node) >= 2) {
+				if (difference(node->right) == 1 || difference(node->right) == 0) {
+					left_rotate(node);
+				}
+				else
+				{
+					//BigLeftRotate
+					right_rotate(node->right);
+					left_rotate(node);
+				}
+			}
+			else if (difference(node) <= -2) {
+				if (difference(node->left) == -1 || difference(node->left) == 0) {
+					right_rotate(node);
+				}
+				else
+				{
+					//BigRightRotate
+					left_rotate(node->left);
+					right_rotate(node);
+				}
+			}
+			if (node->previous)
+				node = node->previous;
+			else {
+				root = node;
+				break;
+			}
+			root = node;
+		}
+	}
+
+
+
 public:
 	void add(int data) {
 		if (!(this->search(data))) {
 			if (root == nullptr) {
-				root = new Node(data);
-				height = 1;
+				root = new Node(data);	
 			}
 			else {
-				int temp_height = 1;
+				
 				Node* temp = root;
 				while (true) {
 					if (data > temp->data) {
 						if (temp->right == nullptr) {
 							temp->right = new Node(data);
-							temp_height++;
-							if (height < temp_height) height = temp_height;
+							temp->right->previous = temp;
+							
 							break;
 						}
 						else {
 							temp = temp->right;
-							temp_height++;
+							
 						}
 
 					}
 					else {
 						if (temp->left == nullptr) {
 							temp->left = new Node(data);
-							temp_height++;
-							if (height < temp_height) height = temp_height;
+							temp->left->previous = temp;
 							break;
 						}
 						else {
 							temp = temp->left;
-							temp_height++;
 						}
 					}
 				}
+				balance(temp);
 
 			}
 		}
-		/*else
+		else
 		{
-			throw std::to_string(data) + std::string(" already exists!");
-		}*/
-		this->balance();
+			//std::cerr << data << "already exists!" << std::endl;
+			//throw std::to_string(data) + std::string(" already exists!");
+		}
+		
 	}
+	void remove(int data) {
+		if (this->search(data)) {
+			////Node* temp = root;
+			////while (true) {
+			////	if (data == temp->data) {
+			////		if (get_height(temp) == 1) {
+			////			if (temp->previous != nullptr) {
+			////				if (data < temp->previous->data)
+			////					temp->previous->left = nullptr;
+			////				if (data > temp->previous->data)
+			////					temp->previous->right = nullptr;
+			////			}
+			////			else
+			////			{
+			////				root = nullptr;
+			////			}
+			////			break;
+			////		}
+			////		if (get_height(temp) == 2 && (temp->right == nullptr || temp->left == nullptr)) {
+			////			if (temp->previous != nullptr) {
+			////				if (data < temp->previous->data)
+			////					if (temp->right != nullptr) {
+			////						temp->previous->left = temp->right;
+			////						temp->right->previous = temp->previous;
+			////					}
+			////					else {
+			////						temp->previous->left = temp->left;
+			////						temp->left->previous = temp->previous;
+			////					}
+			////				if (data > temp->previous->data)
+			////					if (temp->right != nullptr) {
+			////						temp->previous->right = temp->right;
+			////						temp->right->previous = temp->previous;
+			////					}
+			////					else {
+			////						temp->previous->right = temp->left;
+			////						temp->left->previous = temp->previous;
+			////					}
+			////			}
+			////			else
+			////			{
+			////				if (temp->right != nullptr) {
+			////					root = temp->right;
+			////					temp->right->previous = temp->previous;
+			////				}
+			////				else{
+			////					root = temp->left;
+			////					temp->left->previous = temp->previous;
+			////				}
+			////			}
+			////			break;
+			////		}
+			////		else {
+			////			Node* most_right = temp->left;
+			////			
+			////			while (most_right->right != nullptr) {
+			////				most_right = most_right->right;
+			////			}
+			////			if (most_right == temp->left) {
+			////				most_right->right = temp->right;
+			////				most_right->previous = temp->previous;
+			////				most_right->height_node = temp->height_node;
+			////				if (temp->previous != nullptr) {
+			////					if (data < temp->previous->data)
+			////						temp->previous->left = most_right;
+			////					else
+			////						temp->previous->right = most_right;
+			////					balance(most_right);
+			////				}
+			////				if(temp->right!=nullptr)
+			////				{
+			////					temp->right->previous = most_right;
+			////				}
+			////				
+			////			}
+			////			else {
+			////				Node* prev = most_right->previous;
+			////				prev->right = most_right->left;
+			////				
+			////				if(most_right->left!=nullptr)
+			////					most_right->left->previous = prev;
+			////				most_right->right = temp->right;
+			////				most_right->left = temp->left;
+			////				
+			////				most_right->previous = temp->previous;
+			////				if(temp->right!=nullptr)
+			////					temp->right->previous = most_right;
+			////				if (temp->left != nullptr)
+			////					temp->left->previous = most_right;
+			////				if (temp->previous != nullptr) {
+			////					if (data < temp->previous->data)
+			////						temp->previous->left = most_right;
+			////					else
+			////						temp->previous->right = most_right;
+			////				}
+			////				most_right->height_node = temp->height_node;
+			////				temp->previous = prev;
+			////			}
+			////				
+			////			
+			////			/*if (most_right->previous == nullptr) {
+			////				root = most_right;
+			////				balance(most_right);
+			////			}*/
+			////			
+			////			
+			////			break;
+			////		}
+			////	}
+			////	else if(data<temp->data) {
+			////		temp = temp->left;
+			////	}
+			////	else if (data > temp->data) {
+			////		temp = temp->right;
+			////	}
+			////}
+			////if (temp->previous != nullptr)
+			////	balance(temp->previous);
+			////delete temp;
+			////temp = nullptr;
+			////
+			////
 
+			Node* temp = root;
+			while (true) {
+				if (data == temp->data) {
+					if (get_height(temp) == 1) {
+						if (temp->previous == nullptr) {
+							delete temp;
+							temp = nullptr;
+							root = nullptr;
+						}
+						else {
+							if (data < temp->previous->data) {
+								temp->previous->left = nullptr;
+							}
+							else {
+								temp->previous->right = nullptr;
+							}
+							Node* another_temp = temp->previous;
+							delete temp;
+							temp = nullptr;
+							this->balance(another_temp);
+						}
+						break;
+					}
+					
+					if (temp->right == nullptr || temp->left == nullptr) {
+						if (temp->previous == nullptr) {
+							if (temp->right != nullptr) {
+								root = temp->right;
+								temp->right->previous = nullptr;
+							}
+							else if (temp->left != nullptr) {
+								root = temp->left;
+								temp->left->previous = nullptr;
+							}
+							delete temp;
+							temp = nullptr;
+							this->balance(root);
+						}
+						else {
+							if (data < temp->previous->data) {
+								if (temp->right != nullptr) {
+									temp->right->previous = temp->previous;
+									temp->previous->left = temp->right;
+								}
+								else if (temp->left != nullptr) {
+									temp->left->previous = temp->previous;
+									temp->previous->left = temp->left;
+								}
+							}
+							else {
+								if (temp->right != nullptr) {
+									temp->right->previous = temp->previous;
+									temp->previous->right = temp->right;
+								}
+								else if (temp->left != nullptr) {
+									temp->left->previous = temp->previous;
+									temp->previous->right = temp->left;
+								}
+							}
+							Node* another_temp = temp->previous;
+							delete temp;
+							temp = nullptr;
+							this->balance(another_temp);
+						}
+						
+						break;
+					}
+					if (temp->right != nullptr && temp->left != nullptr) {
+						Node* most_right = temp->left;
+						while (most_right->right != nullptr) {
+							most_right = most_right->right;
+						}
+						if (most_right == temp->left) {
+							most_right->previous = temp->previous;
+							if (temp->previous != nullptr) {
+								if (data < temp->previous->data)
+									temp->previous->left = most_right;
+								else
+									temp->previous->right = most_right;
+							}
+							most_right->right = temp->right;
+							temp->right->previous = most_right;
+							delete temp;
+							temp = nullptr;
+							this->balance(most_right);
+							break;
+						}
+						else {
+							Node* prev = most_right->previous;
+							prev->right = most_right->left;
+							if (most_right->left != nullptr) {
+								most_right->left->previous = prev;
+							}
+							most_right->right = temp->right;
+							most_right->left = temp->left;
+							temp->right->previous = most_right;
+							temp->left->previous = most_right;
+							most_right->previous = temp->previous;
+							if (temp->previous != nullptr) {
+								if (data < temp->previous->data) {
+									temp->previous->left = most_right;
+								}
+								else{
+									temp->previous->right = most_right;
+								}
+							}
+							delete temp;
+							temp = nullptr;
+							this->balance(prev);
+							break;
+						}
+						
+					
+
+					}
+				}
+				else if (data<temp->data){
+					temp = temp->left;
+				}
+				else if (data > temp->data) {
+					temp = temp->right;
+				}
+			}	
+		}
+		else
+		{
+			//std::cerr << data << " is not found!" << std::endl;
+			//throw std::to_string(data) + std::string(" is not found!");
+		}
+	}
 	bool search(int data) {
 		int step = 0;
 		if (root != nullptr) {
@@ -180,34 +531,26 @@ public:
 			return false;
 		}
 	}
-	void balance() {
 
-	}
+
 
 	void bypass() {
 		direct_bypass(root);
 	}
 
 	void print() {
-		
-		int length_number = 2;
-		max_length_number(root, length_number);
-		for (int i = 1; i < this->height+1; i++)
-		{
-			std::string level = "";
-			string_level(root, 1, i, level, length_number);
-			std::cout << level << std::endl;
+		if (root != nullptr) {
+			int length_number = 2;
+			max_length_number(root, length_number);
+			for (int i = 1; i < root->height_node + 1; i++)
+			{
+				std::string level = "";
+				string_level(root, 1, i, level, length_number);
+				std::cout << level << std::endl;
+			}
 		}
 	}
-	std::string space(int number, char delimiter = ' ') {
-		std::string str = "";
-		for (int i = 0; i < number; i++)
-		{
-			str += delimiter;
-			//std::cout << delimiter;
-		}
-		return str;
-	}
+
 };
 
 
