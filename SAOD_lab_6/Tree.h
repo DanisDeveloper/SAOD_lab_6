@@ -158,7 +158,6 @@ class Tree {
 		fix_height(high);
 		fix_height(low);
 	}
-
 	void balance(Node* node) {
 		while (true) {
 			fix_height(node);
@@ -193,9 +192,18 @@ class Tree {
 			root = node;
 		}
 	}
-
-
-
+	void to_arr(Node* node, Arr& arr) {
+		if (node == nullptr) return;
+		arr.push_back(node->data);
+		to_arr(node->left, arr);
+		to_arr(node->right, arr);
+	}
+	void clear_rec(Node* node) {
+		if (node == nullptr) return;
+		clear_rec(node->left);
+		clear_rec(node->right);
+		delete node;
+	}
 public:
 	void add(int data) {
 		if (!(this->search(data))) {
@@ -501,10 +509,10 @@ public:
 			while (temp->data != data) {
 				if (data > temp->data) {
 					if (temp->right == nullptr) {
-						step++;
+						/*step++;
 						if (print_steps)
-							std::cout << "Steps to find " << data << " = " << step << std::endl;
-
+							std::cout << "Steps to find " << data << " = " << step << std::endl;*/
+						
 						return false;
 					}
 					else {
@@ -514,9 +522,9 @@ public:
 				}
 				else {
 					if (temp->left == nullptr) {
-						step++;
+						/*step++;
 						if (print_steps)
-							std::cout << "Steps to find " << data << " = " << step << std::endl;
+							std::cout << "Steps to find " << data << " = " << step << std::endl;*/
 
 						return false;
 					}
@@ -532,19 +540,16 @@ public:
 			return true;
 		}
 		else {
-			if (print_steps)
-				std::cout << "Steps to find " << data << " = " << step << std::endl;
+			/*if (print_steps)
+				std::cout << "Steps to find " << data << " = " << step << std::endl;*/
 
 			return false;
 		}
 	}
-
-
-
 	void bypass() {
 		direct_bypass(root);
+		std::cout << std::endl;
 	}
-
 	void print() {
 		if (root != nullptr) {
 			int length_number = 2;
@@ -556,122 +561,6 @@ public:
 				std::cout << level << std::endl;
 			}
 		}
-	}
-	//int current_level(int data) {
-	//	Node* temp = root;
-	//	int level = 1;
-	//	while (true) {
-	//		if (temp == nullptr) return level - 1;
-	//		if (temp->data == data) return level;
-	//		else if (data < temp->data) { 
-	//			temp = temp->left; 
-	//			level++; 
-	//		}
-	//		else if (data > temp->data) {
-	//			temp = temp->right;
-	//			level++;
-	//		}
-	//	}
-	//}
-	//void full(Node* node, int level, int max_height) {
-	//	if (node->right == nullptr && node->left == nullptr && current_level(node->data) == max_height) return;
-	//	/*this->print();
-	//	std::cout << std::endl;
-	//	std::cout << std::endl;*/
-	//	if (node->left == nullptr) { // исправить
-
-	//		if (this->search(node->data - 1)) {
-	//			if (difference(node->previous) == 1) {
-	//				node = node->previous;
-	//				while (node->right != nullptr) node = node->right;
-	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//			else if (difference(node->previous) == -1) {
-	//				node = node->previous;
-	//				while (node->left != nullptr) node = node->left;
-	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//			else if (abs(difference(node->previous)) == 0) {
-	//				while (node->right != nullptr) node = node->right;
-	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//		}
-	//		else
-	//			this->add(node->data - 1);
-	//	}
-	//	/*this->print();
-	//	std::cout << std::endl;
-	//	std::cout << std::endl;*/
-	//	if (node->right == nullptr) { // исправить
-	//		if (this->search(node->data + 1)) {
-	//			if (difference(node->previous) >= 1) {
-	//				node = node->previous;
-	//				while (node->right != nullptr) node = node->right;
-	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//			else if (difference(node->previous) <= -1) {
-	//				node = node->previous;
-	//				while (node->left != nullptr) node = node->left;
-	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//			else if (difference(node->previous) == 0) {
-	//				while (node->left != nullptr) node = node->left;
-	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
-	//				this->balance(node);
-	//			}
-	//		}
-	//		else
-	//			this->add(node->data + 1);
-	//	}
-	//	/*this->print();
-	//	std::cout << std::endl;
-	//	std::cout << std::endl;*/
-	//	if (node->left != nullptr)
-	//		full(node->left, level + 1, max_height);
-	//	if (node->right != nullptr)
-	//		full(node->right, level + 1, max_height);
-	//}
-	//void check(Node* node, int level, int max_level,bool& is_full) {
-	//	if (node == nullptr && level != max_level + 1) is_full = false;
-	//	if (node == nullptr) 
-	//		return;
-	//	check(node->left,level+1,max_level,is_full);
-	//	check(node->right, level + 1, max_level, is_full);
-	//}
-	//void full_tree() {
-	//	bool is_full = true;
-	//	while (is_full) {
-	//		check(root, 1, root->height_node, is_full);
-	//		if (!is_full)
-	//			full(root, 1, root->height_node);
-	//		else
-	//			break;
-	//		is_full = true;
-	//		//this->print();
-	//	}
-	//	
-	//	/*full(root, 1, root->height_node);
-	//	full(root, 1, root->height_node);
-	//	full(root, 1, root->height_node);*/
-	//	/*	if (root->left->height_node > root->right->height_node) {
-	//			right_rotate(root);
-	//			this->balance(root);
-	//		}
-	//		else {
-	//			left_rotate(root);
-	//			this->balance(root);
-	//		}*/
-	//}
-	void to_arr(Node* node,Arr& arr) {
-		if (node == nullptr) return;
-		arr.push_back(node->data);
-		to_arr(node->left, arr);
-		to_arr(node->right, arr);
 	}
 	void full_tree() {
 		int number_of_elements = 0;
@@ -685,7 +574,7 @@ public:
 
 		std::random_device rd;
 		std::mt19937 mt(rd());
-		std::uniform_int_distribution<> rand(0, 99);
+		std::uniform_int_distribution<> rand(0, 999);
 		while (arr.size()!=number_of_elements) {
 			int random = rand(mt);
 			if(!arr.contains(random))
@@ -698,12 +587,6 @@ public:
 			this->add(arr[index_element]);
 			arr.remove(index_element);
 		}
-	}
-	void clear_rec(Node* node) {
-		if (node == nullptr) return;
-		clear_rec(node->left);
-		clear_rec(node->right);
-		delete node;
 	}
 	void clear() {
 		clear_rec(root);
