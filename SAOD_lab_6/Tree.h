@@ -115,10 +115,10 @@ class Tree {
 	void right_rotate(Node* high) {
 		Node* low = high->left;
 		high->left = low->right;
-		low->right = high;
-		low->previous = high->previous;
 		if (low->right != nullptr)
 			low->right->previous = high;
+		low->right = high;
+		low->previous = high->previous;
 		high->previous = low;
 		if (low->previous != nullptr) {
 			if (low->previous->data < low->data) {
@@ -135,10 +135,10 @@ class Tree {
 	void left_rotate(Node* high) {
 		Node* low = high->right;
 		high->right = low->left;
-		low->left = high;
-		low->previous = high->previous;
 		if (low->left != nullptr)
 			low->left->previous = high;
+		low->left = high;
+		low->previous = high->previous;
 		high->previous = low;
 		if (low->previous != nullptr) {
 			if (low->previous->data < low->data) {
@@ -549,6 +549,9 @@ public:
 				std::cout << level << std::endl;
 			}
 		}
+		std::cout << std::endl;
+		std::cout << std::endl;
+		std::cout << std::endl;
 	}
 
 };
