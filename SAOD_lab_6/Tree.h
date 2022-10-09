@@ -2,6 +2,8 @@
 #define _TREE_
 #include<string>
 #include<iomanip>
+#include"Arr.h"
+#include<random>
 //#define DEBAG
 class Tree {
 
@@ -12,7 +14,7 @@ class Tree {
 		Node* right;
 		Node* left;
 		Node* previous;
-		Node(int data, Node* right = nullptr, Node* left = nullptr,Node* previous = nullptr,int height_node = 1) {
+		Node(int data, Node* right = nullptr, Node* left = nullptr, Node* previous = nullptr, int height_node = 1) {
 			this->data = data;
 			this->right = right;
 			this->left = left;
@@ -28,13 +30,13 @@ class Tree {
 		direct_bypass(node->left);
 		direct_bypass(node->right);
 	}
-	void max_length_number(Node* node,int& length_number) {
+	void max_length_number(Node* node, int& length_number) {
 		if (node == nullptr) return;
 		if (std::to_string(node->data).length() > length_number)length_number = std::to_string(node->data).length();
-		max_length_number(node->left,length_number);
-		max_length_number(node->right,length_number);
+		max_length_number(node->left, length_number);
+		max_length_number(node->right, length_number);
 	}
-	void string_level(Node* node, int level, int height, std::string& str,int length_number) { // for print()
+	void string_level(Node* node, int level, int height, std::string& str, int length_number) { // for print()
 		int max_length = std::pow(2, root->height_node - 1);
 		max_length = (2 * max_length - 1) * length_number;
 
@@ -53,10 +55,13 @@ class Tree {
 			}
 			if (str == "")
 				str += this->space(spaces);
-			if(node==nullptr)
+			if (node == nullptr)
 				str += this->space(length_number);
-			else
+			else {
+				str += this->space(length_number - std::to_string(node->data).length());
 				str += std::to_string(node->data);
+			}
+				
 			str += this->space(interval);
 		}
 		if (node == nullptr) {
@@ -82,13 +87,15 @@ class Tree {
 					str += this->space(spaces);
 				if (node == nullptr)
 					str += this->space(length_number);
-				else
+				else{
+					str += this->space(length_number - std::to_string(node->data).length());
 					str += std::to_string(node->data);
+				}
 				str += this->space(interval);
 			}
 			return;
 		}
-		
+
 		string_level(node->left, level + 1, height, str, length_number);
 		string_level(node->right, level + 1, height, str, length_number);
 	}
@@ -128,7 +135,7 @@ class Tree {
 				low->previous->left = low;
 			}
 		}
-		
+
 		fix_height(high);
 		fix_height(low);
 	}
@@ -193,22 +200,22 @@ public:
 	void add(int data) {
 		if (!(this->search(data))) {
 			if (root == nullptr) {
-				root = new Node(data);	
+				root = new Node(data);
 			}
 			else {
-				
+
 				Node* temp = root;
 				while (true) {
 					if (data > temp->data) {
 						if (temp->right == nullptr) {
 							temp->right = new Node(data);
 							temp->right->previous = temp;
-							
+
 							break;
 						}
 						else {
 							temp = temp->right;
-							
+
 						}
 
 					}
@@ -232,7 +239,7 @@ public:
 			//std::cerr << data << "already exists!" << std::endl;
 			//throw std::to_string(data) + std::string(" already exists!");
 		}
-		
+
 	}
 	void remove(int data) {
 		if (this->search(data)) {
@@ -380,7 +387,7 @@ public:
 						}
 						break;
 					}
-					
+
 					if (temp->right == nullptr || temp->left == nullptr) {
 						if (temp->previous == nullptr) {
 							if (temp->right != nullptr) {
@@ -421,7 +428,7 @@ public:
 							temp = nullptr;
 							this->balance(another_temp);
 						}
-						
+
 						break;
 					}
 					if (temp->right != nullptr && temp->left != nullptr) {
@@ -459,7 +466,7 @@ public:
 								if (data < temp->previous->data) {
 									temp->previous->left = most_right;
 								}
-								else{
+								else {
 									temp->previous->right = most_right;
 								}
 							}
@@ -468,18 +475,18 @@ public:
 							this->balance(prev);
 							break;
 						}
-						
-					
+
+
 
 					}
 				}
-				else if (data<temp->data){
+				else if (data < temp->data) {
 					temp = temp->left;
 				}
 				else if (data > temp->data) {
 					temp = temp->right;
 				}
-			}	
+			}
 		}
 		else
 		{
@@ -487,7 +494,7 @@ public:
 			//throw std::to_string(data) + std::string(" is not found!");
 		}
 	}
-	bool search(int data) {
+	bool search(int data, bool print_steps = 0) {
 		int step = 0;
 		if (root != nullptr) {
 			Node* temp = root;
@@ -495,9 +502,9 @@ public:
 				if (data > temp->data) {
 					if (temp->right == nullptr) {
 						step++;
-#ifdef DEBAG
-						std::cout << "Steps to find " << data << " = " << step << std::endl;
-#endif
+						if (print_steps)
+							std::cout << "Steps to find " << data << " = " << step << std::endl;
+
 						return false;
 					}
 					else {
@@ -508,9 +515,9 @@ public:
 				else {
 					if (temp->left == nullptr) {
 						step++;
-#ifdef DEBAG
-						std::cout << "Steps to find " << data << " = " << step << std::endl;
-#endif
+						if (print_steps)
+							std::cout << "Steps to find " << data << " = " << step << std::endl;
+
 						return false;
 					}
 					else {
@@ -519,15 +526,15 @@ public:
 					}
 				}
 			}
-#ifdef DEBAG
-			std::cout << "Steps to find " << data << " = " << step << std::endl;
-#endif
+			if (print_steps)
+				std::cout << "Steps to find " << data << " = " << step << std::endl;
+
 			return true;
 		}
 		else {
-#ifdef DEBAG
-			std::cout << "Steps to find " << data << " = " << step << std::endl;
-#endif
+			if (print_steps)
+				std::cout << "Steps to find " << data << " = " << step << std::endl;
+
 			return false;
 		}
 	}
@@ -549,11 +556,162 @@ public:
 				std::cout << level << std::endl;
 			}
 		}
-		std::cout << std::endl;
-		std::cout << std::endl;
-		std::cout << std::endl;
 	}
+	//int current_level(int data) {
+	//	Node* temp = root;
+	//	int level = 1;
+	//	while (true) {
+	//		if (temp == nullptr) return level - 1;
+	//		if (temp->data == data) return level;
+	//		else if (data < temp->data) { 
+	//			temp = temp->left; 
+	//			level++; 
+	//		}
+	//		else if (data > temp->data) {
+	//			temp = temp->right;
+	//			level++;
+	//		}
+	//	}
+	//}
+	//void full(Node* node, int level, int max_height) {
+	//	if (node->right == nullptr && node->left == nullptr && current_level(node->data) == max_height) return;
+	//	/*this->print();
+	//	std::cout << std::endl;
+	//	std::cout << std::endl;*/
+	//	if (node->left == nullptr) { // исправить
 
+	//		if (this->search(node->data - 1)) {
+	//			if (difference(node->previous) == 1) {
+	//				node = node->previous;
+	//				while (node->right != nullptr) node = node->right;
+	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//			else if (difference(node->previous) == -1) {
+	//				node = node->previous;
+	//				while (node->left != nullptr) node = node->left;
+	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//			else if (abs(difference(node->previous)) == 0) {
+	//				while (node->right != nullptr) node = node->right;
+	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//		}
+	//		else
+	//			this->add(node->data - 1);
+	//	}
+	//	/*this->print();
+	//	std::cout << std::endl;
+	//	std::cout << std::endl;*/
+	//	if (node->right == nullptr) { // исправить
+	//		if (this->search(node->data + 1)) {
+	//			if (difference(node->previous) >= 1) {
+	//				node = node->previous;
+	//				while (node->right != nullptr) node = node->right;
+	//				node->right = new Node(node->data + 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//			else if (difference(node->previous) <= -1) {
+	//				node = node->previous;
+	//				while (node->left != nullptr) node = node->left;
+	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//			else if (difference(node->previous) == 0) {
+	//				while (node->left != nullptr) node = node->left;
+	//				node->left = new Node(node->data - 1, nullptr, nullptr, node);
+	//				this->balance(node);
+	//			}
+	//		}
+	//		else
+	//			this->add(node->data + 1);
+	//	}
+	//	/*this->print();
+	//	std::cout << std::endl;
+	//	std::cout << std::endl;*/
+	//	if (node->left != nullptr)
+	//		full(node->left, level + 1, max_height);
+	//	if (node->right != nullptr)
+	//		full(node->right, level + 1, max_height);
+	//}
+	//void check(Node* node, int level, int max_level,bool& is_full) {
+	//	if (node == nullptr && level != max_level + 1) is_full = false;
+	//	if (node == nullptr) 
+	//		return;
+	//	check(node->left,level+1,max_level,is_full);
+	//	check(node->right, level + 1, max_level, is_full);
+	//}
+	//void full_tree() {
+	//	bool is_full = true;
+	//	while (is_full) {
+	//		check(root, 1, root->height_node, is_full);
+	//		if (!is_full)
+	//			full(root, 1, root->height_node);
+	//		else
+	//			break;
+	//		is_full = true;
+	//		//this->print();
+	//	}
+	//	
+	//	/*full(root, 1, root->height_node);
+	//	full(root, 1, root->height_node);
+	//	full(root, 1, root->height_node);*/
+	//	/*	if (root->left->height_node > root->right->height_node) {
+	//			right_rotate(root);
+	//			this->balance(root);
+	//		}
+	//		else {
+	//			left_rotate(root);
+	//			this->balance(root);
+	//		}*/
+	//}
+	void to_arr(Node* node,Arr& arr) {
+		if (node == nullptr) return;
+		arr.push_back(node->data);
+		to_arr(node->left, arr);
+		to_arr(node->right, arr);
+	}
+	void full_tree() {
+		int number_of_elements = 0;
+		for (int i = 0; i < root->height_node; i++)
+		{
+			int temp = std::pow(2, i);
+			number_of_elements += temp;
+		}
+		Arr arr;
+		to_arr(root, arr);
+
+		std::random_device rd;
+		std::mt19937 mt(rd());
+		std::uniform_int_distribution<> rand(0, 99);
+		while (arr.size()!=number_of_elements) {
+			int random = rand(mt);
+			if(!arr.contains(random))
+				arr.push_back(random);
+		}
+		arr.sort();
+		this->clear();
+		while (arr.size() != 0) {
+			int index_element = arr.size() / 2;
+			this->add(arr[index_element]);
+			arr.remove(index_element);
+		}
+	}
+	void clear_rec(Node* node) {
+		if (node == nullptr) return;
+		clear_rec(node->left);
+		clear_rec(node->right);
+		delete node;
+	}
+	void clear() {
+		clear_rec(root);
+		root = nullptr;
+	}
+	~Tree() {
+		this->clear();
+	}
 };
 
 

@@ -142,6 +142,7 @@
     <ClCompile Include="SAOD_lab_6.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Arr.h" />
     <ClInclude Include="Tree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
